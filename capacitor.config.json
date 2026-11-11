@@ -1,0 +1,11 @@
+{
+  "appId": "com.joshuaa.dailytracker",
+  "appName": "Daily Tracker",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
