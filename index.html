@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Workspace</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="workspace">
+    <h1>Project Workspace</h1>
+    <p>Upload and organize your projects in one place.</p>
+
+    <form id="project-form" class="card">
+      <label for="project-name">Project name</label>
+      <input id="project-name" name="projectName" type="text" required />
+
+      <label for="project-description">Description</label>
+      <textarea id="project-description" name="projectDescription" rows="3"></textarea>
+
+      <label for="project-files">Project files</label>
+      <input id="project-files" name="projectFiles" type="file" multiple required />
+
+      <button type="submit">Upload Project</button>
+    </form>
+
+    <section class="card">
+      <h2>Uploaded Projects</h2>
+      <ul id="project-list" class="project-list"></ul>
+      <p id="empty-state">No projects uploaded yet.</p>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
