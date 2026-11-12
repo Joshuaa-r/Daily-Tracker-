@@ -246,11 +246,12 @@ function hr(){var h=new Date().getHours();return h<12?'Good morning':h<17?'Good 
 function paint(){$('#rmd').textContent='Reminders: '+(rem?'on':'off');var g=$('#gs');g.hidden=!isApp;g.textContent=gUser?'Sign out of Google':'Sign in with Google';var a=$('#acct');if(acct&&(acct.name||acct.email)){a.hidden=false;$('#av').src=acct.avatarUrl;$('#an').textContent=acct.name||disp();$('#ae').textContent=acct.email||''}else a.hidden=true}
 function showWelcome(){var wl=$('#wl'),n=disp();wl.classList.remove('out');
 $('#wd').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
-if(!n){$('#wh').textContent='Welcome';$('#ws').textContent='What should I call you?';$('#wn').hidden=false;$('#nmi').value='';return}
+if(!n){$('#wh').textContent='Welcome';$('#ws').textContent='What should I call you?';$('#wn').hidden=false;$('#nmi').value='';clearTimeout(welcomeTimer);welcomeTimer=setTimeout(function(){wl.classList.add('out')},4000);return}
 $('#wn').hidden=true;var t=key(new Date()),dl=S.habits.filter(function(h){return h.type==='daily'}),dn=dl.filter(function(h){return done(h,t)}).length;
 $('#wh').textContent='Welcome back, '+n;$('#ws').textContent=dl.length?dn+' of '+dl.length+' daily habits done today':'Add your first habit to get started.';
-setTimeout(function(){if($('#wn').hidden)wl.classList.add('out')},2300)}
-async function boot(){try{if(typeof claude!=='undefined'){var u=await Promise.race([claude.use('user'),new Promise(function(r){setTimeout(function(){r(null)},1500)})]);if(u)acct=await u.me()}}catch(e){}
+clearTimeout(welcomeTimer);welcomeTimer=setTimeout(function(){if($('#wn').hidden)wl.classList.add('out')},2300)}
+var welcomeTimer;
+async function boot(){try{if(typeof claude!=='undefined'){var u=await Promise.race([(async function(){var x=await claude.use('user');return x?await x.me():null})(),new Promise(function(r){setTimeout(function(){r(null)},1500)})]);if(u)acct=u}}catch(e){}
 if(gUser)acct=gUser;
 paint();render();tick();if(isApp&&!gUser&&!skip)$('#si').classList.add('on');else showWelcome()}
 var fired={},rem=true;
@@ -328,7 +329,7 @@ $('#pick').onclick=function(){$('#ics').click()};
 $('#ics').onchange=function(){var f=this.files[0],inp=this;if(!f)return;var rd=new FileReader();rd.onload=function(){var ev=parseICS(String(rd.result)),old={};S.events.forEach(function(e){old[e.id]=e.done});ev.forEach(function(e){e.done=!!old[e.id]});if(!ev.length){$('#cm').textContent='No events found from the past 2 weeks to the next 60 days.';return}S.events=ev;save();closeSheet();render();say('Loaded '+ev.length+' events')};rd.onerror=function(){$('#cm').textContent='Could not read that file.'};rd.readAsText(f);inp.value=''};
 $('#clr').onclick=function(){S.events=[];save();closeSheet();render();say('Events cleared')};
 $('#mnov').onclick=function(e){if(!e.target.closest('.menu button')){this.classList.remove('on');document.body.classList.remove('mo')}};
-$('#wl').onclick=function(){if($('#wn').hidden)this.classList.add('out')};
+$('#wl').onclick=function(){clearTimeout(welcomeTimer);this.classList.add('out')};
 function setName(){var v=$('#nmi').value.trim();if(!v){$('#nmi').focus();return}custom=v;try{localStorage.setItem('achv_name',v)}catch(e){}paint();render();showWelcome()}
 $('#nmb').onclick=setName;$('#nmi').onkeydown=function(e){if(e.key==='Enter')setName()};
 $('#nm').onclick=function(){closeSheet();$('#wl').classList.remove('out');$('#wh').textContent='Display name';$('#ws').textContent='This is how the app greets you.';$('#wn').hidden=false;$('#nmi').value=custom||disp();setTimeout(function(){$('#nmi').focus()},100)};
