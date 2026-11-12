@@ -7,5 +7,13 @@
   },
   "android": {
     "allowMixedContent": false
+  },
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": [
+        "profile",
+        "email"
+      ]
+    }
   }
 }

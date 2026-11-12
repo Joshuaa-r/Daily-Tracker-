@@ -1,28 +1,21 @@
 # Daily Tracker
 
-Daily Tracker is a Capacitor Android app wrapping the existing mobile web UI. Habits, reminders, display name, and imported calendar events are stored locally on the device.
+Daily Tracker is a Capacitor Android app. The current native release is **v1.1.1**.
 
-## Local development
+## Install the APK
+
+Download `app-release.apk` from the [v1.1.1 release](https://github.com/Joshuaa-r/Daily-Tracker-/releases/tag/v1.1.1), copy it to the OnePlus 13R, and allow installation from unknown sources when Android asks.
+
+## Build locally
 
 ```sh
 npm ci
 npx cap sync android
-npm run android:build
+./android/gradlew -p android assembleRelease
 ```
 
-The unsigned release APK is written to `android/app/build/outputs/apk/release/app-release.apk`.
+The web app source is `www/index.html`; the Android project is under `android/`.
 
-## GitHub Actions APK
+## Google sign-in
 
-Every push and manual workflow run builds a signed release APK. Open the completed **Build APK** run in the Actions tab and download the `daily-tracker-release-apk` artifact, then install the APK on the phone. Android may require enabling installation from unknown sources for the app used to open the download.
-
-To publish the APK in **Releases**, create and push a version tag:
-
-```sh
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The workflow will attach `app-release.apk` to the generated GitHub Release.
-
-The web app source is `www/index.html`. The native Android project is committed under `android/`.
+The optional Google sign-in integration uses package ID `com.joshuaa.dailytracker`. Set the web client ID in `www/index.html` in place of `PASTE_WEB_CLIENT_ID_HERE` and configure the matching OAuth clients in Google Cloud Console before using sign-in.
