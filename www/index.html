@@ -137,7 +137,7 @@ input[type=text],input[type=time],textarea{width:100%;box-sizing:border-box;font
 </head>
 <body>
 <main>
-<section class="view on" id="v-home"></section>
+<section class="view on" id="v-home"><div class="hd"><h1 class="hh">Daily Tracker</h1></div><p class="sub">Your habits for today</p><div class="list" style="margin-top:20px"><div class="row"><span class="nm">Drink 2 litres of water</span></div><div class="row"><span class="nm">Read 20 pages</span></div><div class="row"><span class="nm">Walk for 30 minutes</span></div><div class="row"><span class="nm">Workout</span></div></div></section>
 <section class="view" id="v-today"></section>
 <section class="view" id="v-week"></section>
 </main>
@@ -378,7 +378,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()
 var ly=0,nav=$('#nav');
 addEventListener('scroll',function(){var y=scrollY;if(y>ly+6&&y>40)nav.classList.add('compact');else if(y<ly-6||y<10)nav.classList.remove('compact');ly=y},{passive:true});
 nav.addEventListener('click',function(){nav.classList.remove('compact')});
-render();boot();
+try{render()}catch(e){console.error('Daily Tracker render failed',e)}
+try{boot()}catch(e){console.error('Daily Tracker startup failed',e)}
 </script>
 </body>
 </html>
