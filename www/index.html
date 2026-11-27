@@ -177,6 +177,7 @@ input[type=text],input[type=time],textarea{width:100%;box-sizing:border-box;font
 <p class="sub" id="cm" style="font-size:13px;margin:10px 0 0"></p>
 </div></div>
 <script>
+if(typeof NodeList!=='undefined'&&!NodeList.prototype.forEach)NodeList.prototype.forEach=Array.prototype.forEach;
 var $=function(s){return document.querySelector(s)};
 var CK='<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 var S,tab='home',off=0,eid=null,kind='daily',tgt=3,em=false,lastDel=null,tt;
@@ -190,7 +191,7 @@ if(!S||!S.habits)S=seed();
 if(!S.events)S.events=[];
 function save(){try{localStorage.setItem('achv1',JSON.stringify(S))}catch(e){}}
 function esc(t){return t.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function key(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function key(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function week(o){var m=new Date();m.setHours(12,0,0,0);m.setDate(m.getDate()-((m.getDay()+6)%7)+o*7);var a=[];for(var i=0;i<7;i++){var d=new Date(m);d.setDate(m.getDate()+i);a.push(d)}return a}
 function done(h,k){return h.log.indexOf(k)>-1}
 function cnt(h,days){return days.filter(function(d){return done(h,key(d))}).length}
@@ -236,7 +237,7 @@ function openSheet(id){eid=id||null;var h=S.habits.filter(function(x){return x.i
 $('#st').textContent=h?'Edit habit':'New habit';$('#in').value=h?h.name:'';tgt=h?h.target:3;setKind(h?h.type:'daily');$('#del').hidden=!h;$('#rt').value=h&&h.rt||'';tpShow();setCat(h?(h.cat||'personal'):(filter==='all'?'personal':filter));pushOv();$('#ov').classList.add('on');setTimeout(function(){$('#in').focus()},250)}
 function closeSheet(){hideOv();if(ovp){ovp=false;try{history.back()}catch(e){}}}
 function hideOv(){document.body.classList.remove('mo');$('#mnov').classList.remove('on');$('#ov').classList.remove('on');$('#ov2').classList.remove('on');$('#ov3').classList.remove('on')}
-function removeH(id){var i=S.habits.findIndex(function(x){return x.id===id});if(i<0)return;lastDel={h:S.habits[i],i:i};S.habits.splice(i,1);if(!S.habits.length)em=false;save();render();var t=$('#toast');t.innerHTML='Habit removed <button data-undo="1">Undo</button>';t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on');lastDel=null},5000)}
+function removeH(id){var i=-1;for(var j=0;j<S.habits.length;j++)if(S.habits[j].id===id){i=j;break}if(i<0)return;lastDel={h:S.habits[i],i:i};S.habits.splice(i,1);if(!S.habits.length)em=false;save();render();var t=$('#toast');t.innerHTML='Habit removed <button data-undo="1">Undo</button>';t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on');lastDel=null},5000)}
 function undoDel(){if(!lastDel)return;S.habits.splice(lastDel.i,0,lastDel.h);lastDel=null;$('#toast').classList.remove('on');save();render()}
 var custom='',acct=null;
 try{custom=localStorage.getItem('achv_name')||''}catch(e){}
@@ -251,9 +252,9 @@ $('#wn').hidden=true;var t=key(new Date()),dl=S.habits.filter(function(h){return
 $('#wh').textContent='Welcome back, '+n;$('#ws').textContent=dl.length?dn+' of '+dl.length+' daily habits done today':'Add your first habit to get started.';
 clearTimeout(welcomeTimer);welcomeTimer=setTimeout(function(){if($('#wn').hidden)wl.classList.add('out')},2300)}
 var welcomeTimer;
-async function boot(){try{if(typeof claude!=='undefined'){var u=await Promise.race([(async function(){var x=await claude.use('user');return x?await x.me():null})(),new Promise(function(r){setTimeout(function(){r(null)},1500)})]);if(u)acct=u}}catch(e){}
-if(gUser)acct=gUser;
-paint();render();tick();if(isApp&&!gUser&&!skip)$('#si').classList.add('on');else showWelcome()}
+function boot(){var userPromise=Promise.resolve(null);try{if(typeof claude!=='undefined')userPromise=Promise.resolve(claude.use('user')).then(function(u){return u?u.me():null}).catch(function(){return null})}catch(e){}
+Promise.race([userPromise,new Promise(function(r){setTimeout(function(){r(null)},1500)})]).then(function(u){if(u)acct=u;if(gUser)acct=gUser;
+paint();render();tick();if(isApp&&!gUser&&!skip)$('#si').classList.add('on');else showWelcome()}).catch(function(e){console.error('Daily Tracker startup failed',e)})}
 var fired={},rem=true;
 try{fired=JSON.parse(localStorage.getItem('achv_f')||'{}');rem=localStorage.getItem('achv_rem')!=='0'}catch(e){}
 Object.keys(fired).forEach(function(k){if(k.indexOf(key(new Date()))<0)delete fired[k]});
@@ -342,10 +343,10 @@ if(a==='h+')h=(h+1)%24;else if(a==='h-')h=(h+23)%24;else if(a==='m+')m=(m+5)%60;
 $('#rt').value=('0'+h).slice(-2)+':'+('0'+m).slice(-2);tpShow()}
 document.querySelectorAll('[data-tp]').forEach(function(b){b.onclick=function(){tpDo(b.dataset.tp)}});
 document.querySelectorAll('[data-th]').forEach(function(b){b.onclick=function(){theme=b.dataset.th;try{localStorage.setItem('achv_theme',theme)}catch(e){}applyTheme()}});
-async function gIn(){try{if(!gReady){await GA.initialize({clientId:GOOGLE_WEB_CLIENT_ID,scopes:['profile','email'],grantOfflineAccess:false});gReady=true}
-var u=await GA.signIn();gUser={name:u.name||u.givenName||'',email:u.email||'',avatarUrl:u.imageUrl||''};
+function gIn(){if(!GA){say('Google sign-in is unavailable');return}var ready;try{ready=gReady?Promise.resolve():Promise.resolve(GA.initialize({clientId:GOOGLE_WEB_CLIENT_ID,scopes:['profile','email'],grantOfflineAccess:false})).then(function(){gReady=true})}catch(e){ready=Promise.reject(e)}
+ready.then(function(){return GA.signIn()}).then(function(u){gUser={name:u.name||u.givenName||'',email:u.email||'',avatarUrl:u.imageUrl||''};
 try{localStorage.setItem('achv_g',JSON.stringify(gUser))}catch(e){}
-acct=gUser;$('#si').classList.remove('on');paint();render();showWelcome()}catch(e){say('Google sign-in failed or was cancelled')}}
+acct=gUser;$('#si').classList.remove('on');paint();render();showWelcome()}).catch(function(){say('Google sign-in failed or was cancelled')})}
 function gOut(){try{GA.signOut()}catch(e){}gUser=null;acct=null;try{localStorage.removeItem('achv_g')}catch(e){}paint();render();say('Signed out')}
 $('#gsi').onclick=gIn;
 $('#gsk').onclick=function(){try{localStorage.setItem('achv_skip','1')}catch(e){}skip=true;$('#si').classList.remove('on');showWelcome()};

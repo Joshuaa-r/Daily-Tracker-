@@ -1,10 +1,10 @@
 # Daily Tracker
 
-Daily Tracker is a Capacitor Android app. The current native release is **v1.1.1**.
+Daily Tracker is a Capacitor Android app. The current native release is **v1.1.6**.
 
 ## Install the APK
 
-Download `app-release.apk` from the [v1.1.1 release](https://github.com/Joshuaa-r/Daily-Tracker-/releases/tag/v1.1.1), copy it to the OnePlus 13R, and allow installation from unknown sources when Android asks.
+Download `Daily Tracker.apk` from the [v1.1.6 release](https://github.com/Joshuaa-r/Daily-Tracker-/releases/tag/V1.1.6), copy it to your Android phone, and allow installation from unknown sources when Android asks.
 
 ## Build locally
 
